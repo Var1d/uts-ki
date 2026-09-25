@@ -2,7 +2,6 @@ from pathlib import Path
 import base64
 import os
 
-
 from cryptography.exceptions import InvalidTag
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.hashes import SHA256
