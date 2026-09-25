@@ -1,90 +1,22 @@
-import base64
-import os
-
-from cryptography.exceptions import InvalidTag
-from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-from cryptography.hazmat.primitives.hashes import SHA256
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-
-MAGIC = b"UTSKI1"
-
-SALT_SIZE = 16
-NONCE_SIZE = 12
-
-ITERATIONS = 600_000
-
-def derive_key(password: str, salt: bytes) -> bytes:
-    """Mengubah password menjadi kunci AES 256-bit."""
-    if not password:
-        raise ValueError("Password tidak boleh kosong.")
-
-    kdf = PBKDF2HMAC(
-        algorithm=SHA256(),
-        length=32,
-        salt=salt,
-        iterations=ITERATIONS,
-    )
-
-    return kdf.derive(password.encode("utf-8"))
+from crypto_utils import encrypt_text, decrypt_text
 
 
-def encrypt_bytes(data: bytes, password: str) -> str:
-    """Mengenkripsi data bytes dan menghasilkan ciphertext Base64."""
-    salt = os.urandom(SALT_SIZE)
-    nonce = os.urandom(NONCE_SIZE)
+password = "PasswordContoh123!"
+plaintext = "Halo, ini pesan rahasia pertama."
 
-    key = derive_key(password, salt)
-    aesgcm = AESGCM(key)
+ciphertext = encrypt_text(plaintext, password)
 
-    ciphertext = aesgcm.encrypt(nonce, data, None)
+print("Teks asli:")
+print(plaintext)
 
-    payload = MAGIC + salt + nonce + ciphertext
+print("\nCiphertext Base64:")
+print(ciphertext)
 
-    return base64.b64encode(payload).decode("ascii")
+decrypted_text = decrypt_text(ciphertext, password)
 
+print("\nHasil dekripsi:")
+print(decrypted_text)
 
-def decrypt_bytes(encoded_data: str, password: str) -> bytes:
-    """Mendekripsi ciphertext Base64 menjadi data bytes."""
-    try:
-        payload = base64.b64decode(encoded_data, validate=True)
-    except Exception:
-        raise ValueError("Format ciphertext Base64 tidak valid.") from None
+assert decrypted_text == plaintext
 
-    minimum_size = len(MAGIC) + SALT_SIZE + NONCE_SIZE + 16
-
-    if len(payload) < minimum_size:
-        raise ValueError("Data ciphertext terlalu pendek.")
-
-    if not payload.startswith(MAGIC):
-        raise ValueError("Format data tidak dikenali.")
-
-    start = len(MAGIC)
-
-    salt = payload[start:start + SALT_SIZE]
-    start += SALT_SIZE
-
-    nonce = payload[start:start + NONCE_SIZE]
-    start += NONCE_SIZE
-
-    ciphertext = payload[start:]
-
-    key = derive_key(password, salt)
-    aesgcm = AESGCM(key)
-
-    try:
-        return aesgcm.decrypt(nonce, ciphertext, None)
-    except InvalidTag:
-        raise ValueError(
-            "Password salah atau ciphertext telah diubah."
-        ) from None
-
-
-def encrypt_text(plaintext: str, password: str) -> str:
-    """Mengenkripsi teks."""
-    return encrypt_bytes(plaintext.encode("utf-8"), password)
-
-
-def decrypt_text(ciphertext: str, password: str) -> str:
-    """Mendekripsi ciphertext menjadi teks."""
-    plaintext = decrypt_bytes(ciphertext, password)
-    return plaintext.decode("utf-8")
+print("\nTes berhasil!")

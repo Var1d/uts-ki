@@ -1,6 +1,6 @@
 import base64
 import pytest
-from demo_crypto import encrypt_bytes, decrypt_bytes, encrypt_text, decrypt_text
+from crypto_utils import encrypt_bytes, decrypt_bytes, encrypt_text, decrypt_text
 
 
 def test_text_encrypt_decrypt():
@@ -58,3 +58,54 @@ def test_each_encryption_is_different():
     ciphertext_2 = encrypt_text(plaintext, password)
 
     assert ciphertext_1 != ciphertext_2
+    
+def test_file_encrypt_decrypt(tmp_path):
+    """File yang dienkripsi harus kembali sama setelah didekripsi."""
+    from crypto_utils import encrypt_file, decrypt_file
+
+    original_file = tmp_path / "dokumen.txt"
+    encrypted_file = tmp_path / "dokumen.utsk"
+    decrypted_file = tmp_path / "dokumen_pulih.txt"
+
+    original_data = b"Ini contoh isi file rahasia."
+    original_file.write_bytes(original_data)
+
+    password = "PasswordContoh123!"
+
+    encrypt_file(
+        str(original_file),
+        str(encrypted_file),
+        password,
+    )
+
+    decrypt_file(
+        str(encrypted_file),
+        str(decrypted_file),
+        password,
+    )
+
+    assert decrypted_file.read_bytes() == original_data
+
+
+def test_file_wrong_password_fails(tmp_path):
+    """File tidak dapat didekripsi dengan password yang salah."""
+    from crypto_utils import encrypt_file, decrypt_file
+
+    original_file = tmp_path / "dokumen.txt"
+    encrypted_file = tmp_path / "dokumen.utsk"
+    decrypted_file = tmp_path / "dokumen_pulih.txt"
+
+    original_file.write_text("Pesan rahasia", encoding="utf-8")
+
+    encrypt_file(
+        str(original_file),
+        str(encrypted_file),
+        "PasswordBenar123!",
+    )
+
+    with pytest.raises(ValueError):
+        decrypt_file(
+            str(encrypted_file),
+            str(decrypted_file),
+            "PasswordSalah123!",
+        )
