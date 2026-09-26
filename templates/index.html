@@ -7,17 +7,26 @@
 </head>
 <body>
     <h1>Aplikasi Kriptografi AES-256-GCM</h1>
-    <p>Enkripsi dan dekripsi file menggunakan password.</p>
+    <p>Enkripsi dan dekripsi teks atau file menggunakan password.</p>
 
     {% if error %}
         <p style="color: red;">{{ error }}</p>
     {% endif %}
 
-    <form method="POST" enctype="multipart/form-data">
-        <p>
-            <label for="file">Pilih file:</label><br>
-            <input type="file" id="file" name="file" required>
-        </p>
+    <hr>
+
+    <h2>Enkripsi dan Dekripsi Teks</h2>
+
+    <form method="POST">
+        <label for="text_input">Teks atau ciphertext:</label><br>
+        <textarea
+            id="text_input"
+            name="text_input"
+            rows="8"
+            cols="60"
+            placeholder="Ketik pesan atau tempel ciphertext Base64 di sini"
+            required
+        >{{ text_input }}</textarea>
 
         <p>
             <label for="password">Password:</label><br>
@@ -29,13 +38,78 @@
             >
         </p>
 
-        <button type="submit" name="action" value="encrypt">
+        <button type="submit" name="action" value="encrypt_text">
+            Enkripsi Teks
+        </button>
+
+        <button type="submit" name="action" value="decrypt_text">
+            Dekripsi Teks
+        </button>
+    </form>
+
+    {% if result_text is not none %}
+        <h3>
+            {% if result_action == "encrypt_text" %}
+                Hasil Enkripsi (Base64)
+            {% else %}
+                Hasil Dekripsi
+            {% endif %}
+        </h3>
+
+        <textarea id="result_text" rows="8" cols="60" readonly>{{ result_text }}</textarea>
+
+        {% if result_action == "encrypt_text" %}
+            <br>
+            <button type="button" onclick="copyResult()">
+                Salin Ciphertext
+            </button>
+            <span id="copy_status"></span>
+        {% endif %}
+    {% endif %}
+
+    <hr>
+
+    <h2>Enkripsi dan Dekripsi File</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+        <p>
+            <label for="file">Pilih file:</label><br>
+            <input type="file" id="file" name="file" required>
+        </p>
+
+        <p>
+            <label for="file_password">Password:</label><br>
+            <input
+                type="password"
+                id="file_password"
+                name="file_password"
+                required
+            >
+        </p>
+
+        <button type="submit" name="action" value="encrypt_file">
             Enkripsi File
         </button>
 
-        <button type="submit" name="action" value="decrypt">
+        <button type="submit" name="action" value="decrypt_file">
             Dekripsi File
         </button>
     </form>
+
+    <script>
+        function copyResult() {
+            const result = document.getElementById("result_text");
+
+            navigator.clipboard.writeText(result.value)
+                .then(() => {
+                    document.getElementById("copy_status").textContent =
+                        "Ciphertext berhasil disalin.";
+                })
+                .catch(() => {
+                    document.getElementById("copy_status").textContent =
+                        "Gagal menyalin. Silakan salin secara manual.";
+                });
+        }
+    </script>
 </body>
 </html>
