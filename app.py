@@ -1,6 +1,8 @@
 from io import BytesIO
 from pathlib import Path
+
 from flask import Flask, render_template, request, send_file
+
 from crypto_utils import (
     encrypt_bytes,
     decrypt_bytes,
@@ -21,10 +23,15 @@ def index():
     if request.method == "POST":
         action = request.form.get("action")
 
-        # Fitur enkripsi dan dekripsi teks
+        # Enkripsi dan dekripsi teks
         if action in ("encrypt_text", "decrypt_text"):
             password = request.form.get("password", "")
             text_input = request.form.get("text_input", "")
+
+            algorithm = request.form.get(
+                "algorithm",
+                "AES-256-GCM",
+            )
 
             if not password:
                 error = "Password tidak boleh kosong."
@@ -33,9 +40,17 @@ def index():
             else:
                 try:
                     if action == "encrypt_text":
-                        result_text = encrypt_text(text_input, password)
+                        result_text = encrypt_text(
+                            text_input,
+                            password,
+                            algorithm,
+                        )
                     else:
-                        result_text = decrypt_text(text_input, password)
+                        # Algoritma dikenali dari ciphertext
+                        result_text = decrypt_text(
+                            text_input,
+                            password,
+                        )
 
                     result_action = action
 
@@ -45,25 +60,36 @@ def index():
                         "Periksa password dan ciphertext."
                     )
 
-        # Fitur enkripsi dan dekripsi file
+        # Enkripsi dan dekripsi file
         elif action in ("encrypt_file", "decrypt_file"):
             password = request.form.get("file_password", "")
             uploaded_file = request.files.get("file")
 
+            algorithm = request.form.get(
+                "file_algorithm",
+                "AES-256-GCM",
+            )
+
             if not password:
                 error = "Password tidak boleh kosong."
+
             elif not uploaded_file or uploaded_file.filename == "":
                 error = "Pilih file terlebih dahulu."
+
             else:
                 try:
                     file_data = uploaded_file.read()
-                    original_name = Path(uploaded_file.filename).name
+                    original_name = Path(
+                        uploaded_file.filename
+                    ).name
 
                     if action == "encrypt_file":
                         encrypted_text = encrypt_bytes(
                             file_data,
                             password,
+                            algorithm,
                         )
+
                         output_data = encrypted_text.encode("utf-8")
                         output_name = original_name + ".utsk"
 

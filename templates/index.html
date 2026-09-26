@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplikasi Kriptografi AES-256-GCM</title>
+    <title>CipherSafe - Aplikasi Kriptografi</title>
 </head>
 <body>
-    <h1>Aplikasi Kriptografi AES-256-GCM</h1>
+    <h1>CipherSafe</h1>
     <p>Enkripsi dan dekripsi teks atau file menggunakan password.</p>
 
     {% if error %}
@@ -38,6 +38,18 @@
             >
         </p>
 
+        <p>
+            <label for="algorithm">Algoritma untuk enkripsi:</label><br>
+            <select id="algorithm" name="algorithm">
+                <option value="AES-256-GCM">
+                    AES-256-GCM
+                </option>
+                <option value="ChaCha20-Poly1305">
+                    ChaCha20-Poly1305
+                </option>
+            </select>
+        </p>
+
         <button type="submit" name="action" value="encrypt_text">
             Enkripsi Teks
         </button>
@@ -45,6 +57,9 @@
         <button type="submit" name="action" value="decrypt_text">
             Dekripsi Teks
         </button>
+        <p>
+        Algoritma dekripsi akan dideteksi otomatis dari ciphertext.
+        </p>
     </form>
 
     {% if result_text is not none %}
@@ -87,6 +102,18 @@
             >
         </p>
 
+        <p>
+            <label for="file_algorithm">
+                Algoritma untuk enkripsi file:
+            </label><br>
+            <select id="file_algorithm" name="file_algorithm">
+                <option value="AES-256-GCM">AES-256-GCM</option>
+                <option value="ChaCha20-Poly1305">
+                    ChaCha20-Poly1305
+                </option>
+            </select>
+        </p>
+
         <button type="submit" name="action" value="encrypt_file">
             Enkripsi File
         </button>
@@ -94,6 +121,9 @@
         <button type="submit" name="action" value="decrypt_file">
             Dekripsi File
         </button>
+        <p>
+        Saat dekripsi, algoritma akan dideteksi otomatis dari file .utsk. Pilihan di atas hanya digunakan untuk enkripsi.
+        </p>
     </form>
 
     <script>
