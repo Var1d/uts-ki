@@ -13,6 +13,11 @@ from crypto_utils import (
 app = Flask(__name__)
 
 
+@app.route("/style.css")
+def serve_css():
+    return send_file("templates/style.css", mimetype="text/css")
+
+
 @app.route("/visualisasi-ecb", methods=["POST"])
 def visualisasi_ecb():
     file = request.files.get("image")
@@ -41,6 +46,7 @@ def visualisasi_ecb():
 @app.route("/", methods=["GET", "POST"])
 def index():
     error = None
+    error_action = None
     result_text = None
     result_action = None
     text_input = ""
@@ -84,6 +90,8 @@ def index():
                         "Gagal memproses teks. "
                         "Periksa password dan ciphertext."
                     )
+            if error:
+                error_action = action
 
         # Enkripsi dan dekripsi file
         elif action in ("encrypt_file", "decrypt_file"):
@@ -142,10 +150,13 @@ def index():
                         "Gagal memproses file. "
                         "Periksa password dan file yang dipilih."
                     )
+            if error:
+                error_action = action
 
     return render_template(
         "index.html",
         error=error,
+        error_action=error_action,
         result_text=result_text,
         result_action=result_action,
         text_input=text_input,

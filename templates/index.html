@@ -1,181 +1,219 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CipherSafe - Aplikasi Kriptografi</title>
-</head>
-<body>
-    <h1>CipherSafe</h1>
-    <p>Enkripsi dan dekripsi teks atau file menggunakan password.</p>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CipherSafe | Secure Data Protection</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container">
+        <div class="brand-row">
+          <span class="brand-mark">C</span>
+          <span>CipherSafe</span>
+        </div>
+      </div>
+    </header>
 
-    {% if error %}
-        <p style="color: red;">{{ error }}</p>
-    {% endif %}
+    <main>
+      <section class="container page-section" id="secure-tools">
+        <div class="card-wrap">
+          <div class="panel">
+            <h3>Enkripsi dan Dekripsi Teks</h3>
+            <form method="POST">
+              <div>
+                <label for="text_input">Teks atau ciphertext</label>
+                <textarea
+                  id="text_input"
+                  name="text_input"
+                  placeholder="Ketik pesan atau tempel ciphertext Base64 di sini"
+                  required
+                >
+{{ text_input }}</textarea
+                >
+              </div>
 
-    <hr>
+              <div>
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required />
+              </div>
 
-    <h2>Enkripsi dan Dekripsi Teks</h2>
+              <div>
+                <label for="algorithm">Algoritma</label>
+                <select id="algorithm" name="algorithm">
+                  <option value="AES-256-GCM">AES-256-GCM</option>
+                  <option value="ChaCha20-Poly1305">ChaCha20-Poly1305</option>
+                </select>
+              </div>
 
-    <form method="POST">
-        <label for="text_input">Teks atau ciphertext:</label><br>
-        <textarea
-            id="text_input"
-            name="text_input"
-            rows="8"
-            cols="60"
-            placeholder="Ketik pesan atau tempel ciphertext Base64 di sini"
-            required
-        >{{ text_input }}</textarea>
+              <div class="action-row">
+                <button
+                  class="small-btn primary"
+                  type="submit"
+                  name="action"
+                  value="encrypt_text"
+                >
+                  Enkripsi Teks
+                </button>
+                <button
+                  class="small-btn secondary"
+                  type="submit"
+                  name="action"
+                  value="decrypt_text"
+                >
+                  Dekripsi Teks
+                </button>
+              </div>
+              {% if error and error_action in ("encrypt_text", "decrypt_text")
+              %}
+              <div class="error-box" role="alert">{{ error }}</div>
+              {% endif %}
+            </form>
 
-        <p>
-            <label for="password">Password:</label><br>
-            <input
-                type="password"
-                id="password"
-                name="password"
-                required
-            >
-        </p>
-
-        <p>
-            <label for="algorithm">Algoritma untuk enkripsi:</label><br>
-            <select id="algorithm" name="algorithm">
-                <option value="AES-256-GCM">
-                    AES-256-GCM
-                </option>
-                <option value="ChaCha20-Poly1305">
-                    ChaCha20-Poly1305
-                </option>
-            </select>
-        </p>
-
-        <button type="submit" name="action" value="encrypt_text">
-            Enkripsi Teks
-        </button>
-
-        <button type="submit" name="action" value="decrypt_text">
-            Dekripsi Teks
-        </button>
-        <p>
-        Algoritma dekripsi akan dideteksi otomatis dari ciphertext.
-        </p>
-    </form>
-
-    {% if result_text is not none %}
-        <h3>
-            {% if result_action == "encrypt_text" %}
-                Hasil Enkripsi (Base64)
-            {% else %}
-                Hasil Dekripsi
+            {% if result_text is not none %}
+            <div class="result-box">
+              <h3>
+                {% if result_action == "encrypt_text" %} Hasil Enkripsi (Base64)
+                {% else %} Hasil Dekripsi {% endif %}
+              </h3>
+              <textarea id="result_text" readonly>{{ result_text }}</textarea>
+              {% if result_action == "encrypt_text" %}
+              <div class="action-row">
+                <button
+                  class="small-btn secondary"
+                  type="button"
+                  onclick="copyResult()"
+                >
+                  Salin Ciphertext
+                </button>
+                <span class="copy-status" id="copy_status"></span>
+              </div>
+              {% endif %}
+            </div>
             {% endif %}
-        </h3>
+          </div>
 
-        <textarea id="result_text" rows="8" cols="60" readonly>{{ result_text }}</textarea>
+          <div class="panel" id="decrypt">
+            <h3>Enkripsi dan Dekripsi File</h3>
+            <form method="POST" enctype="multipart/form-data">
+              <div>
+                <label for="file">Pilih file</label>
+                <input
+                  class="file-input"
+                  type="file"
+                  id="file"
+                  name="file"
+                  required
+                />
+              </div>
 
-        {% if result_action == "encrypt_text" %}
-            <br>
-            <button type="button" onclick="copyResult()">
-                Salin Ciphertext
-            </button>
-            <span id="copy_status"></span>
-        {% endif %}
-    {% endif %}
+              <div>
+                <label for="file_password">Password</label>
+                <input
+                  type="password"
+                  id="file_password"
+                  name="file_password"
+                  required
+                />
+              </div>
 
-    <hr>
+              <div>
+                <label for="file_algorithm"
+                  >Algoritma untuk enkripsi file</label
+                >
+                <select id="file_algorithm" name="file_algorithm">
+                  <option value="AES-256-GCM">AES-256-GCM</option>
+                  <option value="ChaCha20-Poly1305">ChaCha20-Poly1305</option>
+                </select>
+              </div>
 
-    <h2>Enkripsi dan Dekripsi File</h2>
+              <div class="action-row">
+                <button
+                  class="small-btn primary"
+                  type="submit"
+                  name="action"
+                  value="encrypt_file"
+                >
+                  Enkripsi File
+                </button>
+                <button
+                  class="small-btn secondary"
+                  type="submit"
+                  name="action"
+                  value="decrypt_file"
+                >
+                  Dekripsi File
+                </button>
+              </div>
+              {% if error and error_action in ("encrypt_file", "decrypt_file")
+              %}
+              <div class="error-box" role="alert">{{ error }}</div>
+              {% endif %}
 
-    <form method="POST" enctype="multipart/form-data">
-        <p>
-            <label for="file">Pilih file:</label><br>
-            <input type="file" id="file" name="file" required>
-        </p>
+              <p class="muted-note">
+                Saat dekripsi, algoritma akan dideteksi otomatis dari file
+                .utsk. Pilihan di atas hanya digunakan untuk enkripsi.
+              </p>
+            </form>
 
-        <p>
-            <label for="file_password">Password:</label><br>
-            <input
-                type="password"
-                id="file_password"
-                name="file_password"
-                required
+            <h3>Visualisasi Enkripsi Gambar</h3>
+            <p class="muted-note">
+              Bandingkan tampilan gambar asli dengan hasil visualisasi AES-ECB
+              dan AES-GCM.
+            </p>
+
+            <form
+              action="/visualisasi-ecb"
+              method="POST"
+              enctype="multipart/form-data"
             >
-        </p>
+              <div>
+                <label for="image">Pilih gambar</label>
+                <input
+                  type="file"
+                  id="image"
+                  name="image"
+                  accept="image/*"
+                  required
+                />
+              </div>
 
-        <p>
-            <label for="file_algorithm">
-                Algoritma untuk enkripsi file:
-            </label><br>
-            <select id="file_algorithm" name="file_algorithm">
-                <option value="AES-256-GCM">AES-256-GCM</option>
-                <option value="ChaCha20-Poly1305">
-                    ChaCha20-Poly1305
-                </option>
-            </select>
-        </p>
+              <div>
+                <label for="visual-password">Password</label>
+                <input
+                  type="password"
+                  id="visual-password"
+                  name="password"
+                  required
+                />
+              </div>
 
-        <button type="submit" name="action" value="encrypt_file">
-            Enkripsi File
-        </button>
-
-        <button type="submit" name="action" value="decrypt_file">
-            Dekripsi File
-        </button>
-        <p>
-        Saat dekripsi, algoritma akan dideteksi otomatis dari file .utsk. Pilihan di atas hanya digunakan untuk enkripsi.
-        </p>
-    </form>
+              <div class="action-row">
+                <button class="small-btn primary" type="submit">
+                  Visualisasikan
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
 
     <script>
-        function copyResult() {
-            const result = document.getElementById("result_text");
-
-            navigator.clipboard.writeText(result.value)
-                .then(() => {
-                    document.getElementById("copy_status").textContent =
-                        "Ciphertext berhasil disalin.";
-                })
-                .catch(() => {
-                    document.getElementById("copy_status").textContent =
-                        "Gagal menyalin. Silakan salin secara manual.";
-                });
-        }
+      function copyResult() {
+        const result = document.getElementById("result_text");
+        navigator.clipboard
+          .writeText(result.value)
+          .then(() => {
+            document.getElementById("copy_status").textContent =
+              "Ciphertext berhasil disalin.";
+          })
+          .catch(() => {
+            document.getElementById("copy_status").textContent =
+              "Gagal menyalin. Silakan salin secara manual.";
+          });
+      }
     </script>
-    <hr>
-
-<h2>Visualisasi Enkripsi Gambar</h2>
-<p>
-    Bandingkan tampilan gambar asli dengan hasil visualisasi AES-ECB
-    dan AES-GCM.
-</p>
-
-<form
-    action="/visualisasi-ecb"
-    method="POST"
-    enctype="multipart/form-data"
->
-    <label for="image">Pilih gambar:</label>
-    <input
-        type="file"
-        id="image"
-        name="image"
-        accept="image/*"
-        required
-    >
-
-    <br><br>
-
-    <label for="visual-password">Password:</label>
-    <input
-        type="password"
-        id="visual-password"
-        name="password"
-        required
-    >
-
-    <br><br>
-
-    <button type="submit">Visualisasikan</button>
-</form>
-</body>
+  </body>
 </html>
