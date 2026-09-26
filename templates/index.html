@@ -141,5 +141,41 @@
                 });
         }
     </script>
+    <hr>
+
+<h2>Visualisasi Enkripsi Gambar</h2>
+<p>
+    Bandingkan tampilan gambar asli dengan hasil visualisasi AES-ECB
+    dan AES-GCM.
+</p>
+
+<form
+    action="/visualisasi-ecb"
+    method="POST"
+    enctype="multipart/form-data"
+>
+    <label for="image">Pilih gambar:</label>
+    <input
+        type="file"
+        id="image"
+        name="image"
+        accept="image/*"
+        required
+    >
+
+    <br><br>
+
+    <label for="visual-password">Password:</label>
+    <input
+        type="password"
+        id="visual-password"
+        name="password"
+        required
+    >
+
+    <br><br>
+
+    <button type="submit">Visualisasikan</button>
+</form>
 </body>
 </html>

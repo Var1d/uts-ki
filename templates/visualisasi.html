@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Visualisasi ECB vs GCM</title>
+</head>
+<body>
+    <h1>Visualisasi Enkripsi Gambar</h1>
+
+    <h2>Gambar Asli</h2>
+    <img
+        src="data:image/png;base64,{{ original }}"
+        alt="Gambar asli"
+        style="max-width: 500px;"
+    >
+
+    <h2>Hasil AES-ECB</h2>
+    <img
+        src="data:image/png;base64,{{ ecb }}"
+        alt="Hasil visualisasi AES-ECB"
+        style="max-width: 500px;"
+    >
+
+    <h2>Hasil AES-GCM</h2>
+    <img
+        src="data:image/png;base64,{{ gcm }}"
+        alt="Hasil visualisasi AES-GCM"
+        style="max-width: 500px;"
+    >
+
+    <br>
+    <a href="/">Kembali ke halaman utama</a>
+</body>
+</html>

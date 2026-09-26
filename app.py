@@ -1,8 +1,8 @@
+import base64
 from io import BytesIO
 from pathlib import Path
-
 from flask import Flask, render_template, request, send_file
-
+from visualisasi_ecb import visualize_image_bytes
 from crypto_utils import (
     encrypt_bytes,
     decrypt_bytes,
@@ -12,6 +12,31 @@ from crypto_utils import (
 
 app = Flask(__name__)
 
+
+@app.route("/visualisasi-ecb", methods=["POST"])
+def visualisasi_ecb():
+    file = request.files.get("image")
+    password = request.form.get("password", "")
+
+    if file is None or file.filename == "":
+        return "Silakan pilih gambar terlebih dahulu.", 400
+
+    if not password:
+        return "Password harus diisi.", 400
+
+    image_data = file.read()
+
+    original, ecb, gcm = visualize_image_bytes(
+        image_data,
+        password
+    )
+
+    return render_template(
+        "visualisasi.html",
+        original=base64.b64encode(original).decode("utf-8"),
+        ecb=base64.b64encode(ecb).decode("utf-8"),
+        gcm=base64.b64encode(gcm).decode("utf-8")
+    )
 
 @app.route("/", methods=["GET", "POST"])
 def index():
