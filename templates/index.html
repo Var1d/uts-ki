@@ -7,21 +7,36 @@
     <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
+    {% set text_current = "page" if active_feature == "teks" else "false" %} {%
+    set file_current = "page" if active_feature == "file" else "false" %} {% set
+    image_current = "page" if active_feature == "gambar" else "false" %}
     <header class="site-header">
       <div class="container">
         <div class="brand-row">
           <span class="brand-mark">C</span>
           <span>CipherSafe</span>
         </div>
+        <nav class="feature-nav" aria-label="Navigasi fitur">
+          <a href="/?fitur=teks" aria-current="{{ text_current }}"
+            >Enkripsi dan Dekripsi Teks</a
+          >
+          <a href="/?fitur=file" aria-current="{{ file_current }}"
+            >Enkripsi dan Dekripsi File</a
+          >
+          <a href="/?fitur=gambar" aria-current="{{ image_current }}"
+            >Visualisasi Gambar</a
+          >
+        </nav>
       </div>
     </header>
 
     <main>
       <section class="container page-section" id="secure-tools">
         <div class="card-wrap">
+          {% if active_feature == "teks" %}
           <div class="panel">
             <h3>Enkripsi dan Dekripsi Teks</h3>
-            <form method="POST">
+            <form method="POST" action="/?fitur=teks">
               <div>
                 <label for="text_input">Teks atau ciphertext</label>
                 <textarea
@@ -93,10 +108,14 @@
             </div>
             {% endif %}
           </div>
-
+          {% elif active_feature == "file" %}
           <div class="panel" id="decrypt">
             <h3>Enkripsi dan Dekripsi File</h3>
-            <form method="POST" enctype="multipart/form-data">
+            <form
+              method="POST"
+              action="/?fitur=file"
+              enctype="multipart/form-data"
+            >
               <div>
                 <label for="file">Pilih file</label>
                 <input
@@ -156,13 +175,14 @@
                 .utsk. Pilihan di atas hanya digunakan untuk enkripsi.
               </p>
             </form>
-
+          </div>
+          {% else %}
+          <div class="panel">
             <h3>Visualisasi Enkripsi Gambar</h3>
-            <p class="muted-note">
-              Bandingkan tampilan gambar asli dengan hasil visualisasi AES-ECB
-              dan AES-GCM.
+            <p class="muted-note visualization-intro">
+              Bandingkan gambar asli dengan dua hasil enkripsi: AES-ECB dan
+              AES-GCM.
             </p>
-
             <form
               action="/visualisasi-ecb"
               method="POST"
@@ -194,8 +214,41 @@
                   Visualisasikan
                 </button>
               </div>
+              {% if error and error_action == "visualize_image" %}
+              <div class="error-box" role="alert">{{ error }}</div>
+              {% endif %}
             </form>
+
+            {% if visualization %}
+            <div class="result-box visualization-results">
+              <h3>Hasil Visualisasi</h3>
+              <div class="visualization-grid">
+                <figure>
+                  <img
+                    src="data:image/png;base64,{{ visualization.original }}"
+                    alt="Gambar asli"
+                  />
+                  <figcaption>Gambar Asli</figcaption>
+                </figure>
+                <figure>
+                  <img
+                    src="data:image/png;base64,{{ visualization.ecb }}"
+                    alt="Hasil visualisasi AES-ECB"
+                  />
+                  <figcaption>Hasil AES-ECB</figcaption>
+                </figure>
+                <figure>
+                  <img
+                    src="data:image/png;base64,{{ visualization.gcm }}"
+                    alt="Hasil visualisasi AES-GCM"
+                  />
+                  <figcaption>Hasil AES-GCM</figcaption>
+                </figure>
+              </div>
+            </div>
+            {% endif %}
           </div>
+          {% endif %}
         </div>
       </section>
     </main>

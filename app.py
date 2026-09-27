@@ -22,26 +22,32 @@ def serve_css():
 def visualisasi_ecb():
     file = request.files.get("image")
     password = request.form.get("password", "")
+    error = None
+    visualization = None
 
     if file is None or file.filename == "":
-        return "Silakan pilih gambar terlebih dahulu.", 400
-
-    if not password:
-        return "Password harus diisi.", 400
-
-    image_data = file.read()
-
-    original, ecb, gcm = visualize_image_bytes(
-        image_data,
-        password
-    )
+        error = "Silakan pilih gambar terlebih dahulu."
+    elif not password:
+        error = "Password harus diisi."
+    else:
+        image_data = file.read()
+        original, ecb, gcm = visualize_image_bytes(image_data, password)
+        visualization = {
+            "original": base64.b64encode(original).decode("utf-8"),
+            "ecb": base64.b64encode(ecb).decode("utf-8"),
+            "gcm": base64.b64encode(gcm).decode("utf-8"),
+        }
 
     return render_template(
-        "visualisasi.html",
-        original=base64.b64encode(original).decode("utf-8"),
-        ecb=base64.b64encode(ecb).decode("utf-8"),
-        gcm=base64.b64encode(gcm).decode("utf-8")
-    )
+        "index.html",
+        error=error,
+        error_action="visualize_image",
+        result_text=None,
+        result_action=None,
+        text_input="",
+        active_feature="gambar",
+        visualization=visualization,
+    ), 400 if error else 200
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -50,6 +56,9 @@ def index():
     result_text = None
     result_action = None
     text_input = ""
+    active_feature = request.args.get("fitur", "teks")
+    if active_feature not in ("teks", "file", "gambar"):
+        active_feature = "teks"
 
     if request.method == "POST":
         action = request.form.get("action")
@@ -160,6 +169,7 @@ def index():
         result_text=result_text,
         result_action=result_action,
         text_input=text_input,
+        active_feature=active_feature,
     )
 
 
