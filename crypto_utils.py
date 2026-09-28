@@ -1,4 +1,5 @@
 import base64
+import os
 from pathlib import Path
 from cryptography.exceptions import InvalidTag
 from cryptography.hazmat.primitives.ciphers.aead import (
@@ -7,7 +8,6 @@ from cryptography.hazmat.primitives.ciphers.aead import (
 )
 from cryptography.hazmat.primitives.hashes import SHA256
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from cryptography.hazmat.primitives import constant_time
 
 
 # Penanda format ciphertext untuk mengenali algoritma
@@ -39,8 +39,8 @@ def encrypt_bytes(
 ) -> str:
     """Mengenkripsi data bytes dan mengembalikan ciphertext Base64."""
 
-    salt = __import__("os").urandom(SALT_SIZE)
-    nonce = __import__("os").urandom(NONCE_SIZE)
+    salt = os.urandom(SALT_SIZE)
+    nonce = os.urandom(NONCE_SIZE)
 
     key = derive_key(password, salt)
 

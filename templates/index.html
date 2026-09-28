@@ -31,7 +31,7 @@
     </header>
 
     <main>
-      <section class="container page-section" id="secure-tools">
+      <section class="container page-section">
         <div class="card-wrap">
           {% if active_feature == "teks" %}
           <div class="panel">
@@ -109,7 +109,7 @@
             {% endif %}
           </div>
           {% elif active_feature == "file" %}
-          <div class="panel" id="decrypt">
+          <div class="panel">
             <h3>Enkripsi dan Dekripsi File</h3>
             <form
               method="POST"
@@ -220,7 +220,7 @@
             </form>
 
             {% if visualization %}
-            <div class="result-box visualization-results">
+            <div class="result-box">
               <h3>Hasil Visualisasi</h3>
               <div class="visualization-grid">
                 <figure>
